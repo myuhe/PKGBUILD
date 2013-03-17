@@ -1,0 +1,36 @@
+# Maintainer: myuhe <yuhei.maeda at gmail.com>
+
+_pkgname=dmenu
+pkgname=dmenu-history
+pkgver=4.5
+pkgrel=1
+pkgdesc="dmenu patched to use history"
+url="http://tools.suckless.org/dmenu/"
+arch=('i686' 'x86_64')
+license=('MIT')
+depends=('sh' 'libxinerama')
+provides=("dmenu")
+conflicts=("dmenu")
+source=("dmenu.c.patch"
+        "dmenu-4.5-history.diff"
+         "http://dl.suckless.org/tools/$_pkgname-$pkgver.tar.gz")
+md5sums=('48f4d2da92ee5cdf9515795acee1ac2a'
+         '9584f3c932824f791d9eafa1672f438a'
+         '9c46169ed703732ec52ed946c27d84b4')
+
+build(){
+  cd $srcdir/$_pkgname-$pkgver
+
+  patch -p1 < ../dmenu-4.5-history.diff || return 1
+  patch < ../dmenu.c.patch
+
+  make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11
+}
+
+package() {
+  cd $srcdir/$_pkgname-$pkgver
+  make PREFIX=/usr DESTDIR=$pkgdir install
+
+  #install license
+  install -m644 -D LICENSE $pkgdir/usr/share/licenses/$_pkgname/LICENSE
+}
